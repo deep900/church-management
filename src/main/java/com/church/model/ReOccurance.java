@@ -17,5 +17,10 @@ public class ReOccurance {
     private int numberOfOccurance;
 
     private Date endDate;
+    
+    /**
+	 * This flag is to state if this event is active.
+	 */
+	private boolean isActive;
 
 }

@@ -3,11 +3,11 @@
  */
 package com.church.model;
 
-import java.util.Date;
+import java.sql.Timestamp;
 import java.util.List;
 
-import com.church.util.StatusEnum;
 import com.church.util.EventTypeEnum;
+import com.church.util.StatusEnum;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,9 +24,9 @@ public abstract class Event {
 	
 	private String eventName;
 	
-	private Date startTime;
+	private Timestamp startTime;
 	
-	private Date endTime;
+	private Timestamp endTime;
 	
 	private EventTypeEnum eventType;
 
@@ -34,5 +34,6 @@ public abstract class Event {
 
 	private ReOccurance reOccurance;
 
-	private List<Reminder> reminders;
+	private List<Reminder> reminders;	
+	
 }

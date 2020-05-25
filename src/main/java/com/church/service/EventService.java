@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.church.model.ChurchEvent;
 import com.church.model.Event;
 
 /**
@@ -16,7 +17,7 @@ import com.church.model.Event;
 @Service
 public interface EventService<T extends Event> {
 	
-	public List<T> getAllEvents();
+	public List<ChurchEvent> getAllEvents();
 	
 	public Event getEventById(String id);
 	
