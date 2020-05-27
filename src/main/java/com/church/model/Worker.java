@@ -29,4 +29,6 @@ public abstract class Worker {
 	
 	public UserDetails userDetails;
 	
+	public List<String> previleges;
+	
 }
