@@ -9,7 +9,7 @@ package com.church.util;
  */
 public interface APIConstants {
 	
-	public static final String[] skipAPI = new String[] { APIConstants.AUTHENTICATE ,APIConstants.PREPARE_LOGIN};
+	public static final String[] skipAuthenticationAPIArray = new String[] { APIConstants.AUTHENTICATE ,APIConstants.PREPARE_LOGIN};
 	
 	public static final String PREPARE_LOGIN = "/api/prepareForLogin";
 	

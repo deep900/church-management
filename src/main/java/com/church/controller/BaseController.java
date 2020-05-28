@@ -3,9 +3,6 @@
  */
 package com.church.controller;
 
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-
 import com.church.model.ResponseModel;
 import com.church.util.ApplicationConstants;
 

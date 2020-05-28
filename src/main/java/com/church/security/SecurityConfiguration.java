@@ -1,6 +1,7 @@
 package com.church.security;
 
-import org.assertj.core.util.Arrays;
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,7 +36,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
-		Arrays.asList(APIConstants.skipAPI).forEach(x -> {
+		Arrays.asList(APIConstants.skipAuthenticationAPIArray).forEach(x -> {
 			try {
 				http.anonymous().and().antMatcher(x.toString());
 			} catch (Exception err) {
