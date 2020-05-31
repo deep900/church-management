@@ -16,6 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Setter
 @Getter
-public class Engineer extends Worker {	
+public class Engineer extends ApplicationUser {	
 	
 }

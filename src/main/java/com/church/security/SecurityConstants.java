@@ -9,6 +9,10 @@ package com.church.security;
  */
 public interface SecurityConstants {
 	
+	public static final String AUTH_HEADER = "Authorization";
+	
+	public static final String CLAIM_ROLES = "ROLES";
+	
 	public static final String ROLE_USER = "ROLE_USER";
 	
 	public static final String ROLE_ADMIN_USER = "ROLE_ADMIN_USER";

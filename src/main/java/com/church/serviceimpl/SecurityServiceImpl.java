@@ -7,10 +7,14 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import com.church.model.Engineer;
 import com.church.model.SessionData;
-import com.church.model.Worker;
+import com.church.model.ApplicationUser;
 import com.church.service.SecurityService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -41,45 +45,46 @@ public class SecurityServiceImpl implements SecurityService {
 	 */
 	@Override
 	public void updateSession(SessionData sessionData) {
-		
+
 	}
 
 	@Override
 	public List<SessionData> getAllActiveSession() {
 		return null;
-	}	
+	}
 
 	@Override
 	public void clearUnusedSession() {
 		log.info("Clearing the unused session data");
-		// TODO
 	}
-	
+
 	@Override
 	public SessionData getSessionDataById(String id) {
-		return mongoOps.findById(id, SessionData.class);		
-	}
-	
-	@Override
-	public Worker getWorkerByEmail(String emailAddress) {
-
-		return null;
+		return mongoOps.findById(id, SessionData.class);
 	}
 
 	@Override
-	public void updateWorker(Worker workerObj) {
-
+	public Engineer getUserByEmail(String emailAddress) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("emailAddress").is(emailAddress));
+		return mongoOps.findOne(query, Engineer.class);
 	}
 
 	@Override
-	public List<Worker> getAllWorkers() {
-
-		return null;
+	public void updateUser(Update updateObj, String emailAddress) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("emailAddress").is(emailAddress));
+		mongoOps.updateFirst(query, updateObj, ApplicationUser.class);
+		log.info("User updated successfullt [Email]:" + emailAddress);
 	}
 
 	@Override
-	public List<Worker> getWorkerByPrevilege(String previlege) {
+	public List<ApplicationUser> getAllUsers() {
+		return mongoOps.findAll(ApplicationUser.class);
+	}
 
+	@Override
+	public List<ApplicationUser> getUserByPrevilege(String previlege) {
 		return null;
 	}
 }

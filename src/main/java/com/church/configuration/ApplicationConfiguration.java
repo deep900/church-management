@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,8 +21,6 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 
-import com.church.management.publish.TaskAndEventListener;
-import com.church.management.publish.TaskAndEventPublisher;
 import com.church.task.TaskManager;
 import com.church.task.TaskMonitorJob;
 import com.church.task.TaskReminderRunner;
@@ -51,6 +50,7 @@ public class ApplicationConfiguration {
 		List collection = new ArrayList();
 		collection.add(LocalDateTimeToDateConverter.INSTANCE);
 		collection.add(CustomDateTimeConverter.INSTANCE);
+		collection.add(CustomBinaryToByteConverter.INSTANCE);
 		CustomConversions customConversions = new CustomConversions(StoreConversions.NONE, collection);
 		return customConversions;
 	}
@@ -60,6 +60,14 @@ public class ApplicationConfiguration {
 		@Override
 		public Timestamp convert(Date source) {
 			return new Timestamp(source.getTime());
+		}
+	}
+	
+	enum CustomBinaryToByteConverter implements Converter<Binary, byte[]> {
+		INSTANCE;
+		@Override
+		public byte[] convert(Binary source) {
+			return source.getData();
 		}
 	}
 

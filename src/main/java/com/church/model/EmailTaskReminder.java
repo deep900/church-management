@@ -25,7 +25,7 @@ public class EmailTaskReminder extends Reminder {
 		Message message = new Message();
 		message.setContent(messageContent);
 		List<String> toList = new ArrayList<String>();
-		Iterator<Worker> iter = getToWhomToRemind().iterator();
+		Iterator<ApplicationUser> iter = getToWhomToRemind().iterator();
 		while(iter.hasNext()){
 			toList.add(iter.next().emailAddress);
 		}

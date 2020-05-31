@@ -13,7 +13,7 @@ public interface APIConstants {
 	
 	public static final String PREPARE_LOGIN = "/api/prepareForLogin";
 	
-	public static final String AUTHENTICATE = "/api/authenticate";
+	public static final String AUTHENTICATE = "/api/authenticateReq";
 	
 	public static final String GET_ALL_EVENTS = "/api/admin/getAllEvents";
 	

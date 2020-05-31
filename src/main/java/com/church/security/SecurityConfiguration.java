@@ -35,19 +35,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	@Override
-	protected void configure(HttpSecurity http) throws Exception {
-		Arrays.asList(APIConstants.skipAuthenticationAPIArray).forEach(x -> {
-			try {
-				http.anonymous().and().antMatcher(x.toString());
-			} catch (Exception err) {
-				log.error("Error while configuring default skip URL", err);
-			}
-		});
+	protected void configure(HttpSecurity http) throws Exception {	
+		http.csrf().disable();
+		http.antMatcher("**/authenticateReq**").anonymous();
+		http.antMatcher("**/prepareForLogin**").anonymous();
 		http.authorizeRequests().antMatchers("**/admin/**").hasAnyRole(SecurityConstants.ROLE_ADMIN_USER);
 		http.authorizeRequests().antMatchers("**/api/**").hasAnyRole(SecurityConstants.ROLE_USER,
 				SecurityConstants.ROLE_ADMIN_USER, SecurityConstants.ROLE_TASK_REVIEWER,
 				SecurityConstants.ROLE_TASK_WORKER);
 		http.addFilterBefore(getCustomSecurityFilter(), UsernamePasswordAuthenticationFilter.class);
+		
 	}
 
 	@Bean

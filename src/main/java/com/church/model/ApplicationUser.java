@@ -6,9 +6,12 @@ package com.church.model;
 import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.security.core.userdetails.UserDetails;
 
-import lombok.ToString;
+import com.church.security.SecurityUserDetails;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Base class for denoting the person working in the tasks assigned.
@@ -17,8 +20,9 @@ import lombok.ToString;
  *
  */
 @Document
-@ToString
-public abstract class Worker {
+@Getter
+@Setter
+public class ApplicationUser {
 
 	public String name;
 	
@@ -32,10 +36,11 @@ public abstract class Worker {
 	
 	public List<Task> taskList;
 	
-	public UserDetails userDetails;
+	public SecurityUserDetails userDetails;
 	
-	public List<String> previleges;
+	public List<String> previleges;	
 	
-	public String password;
+	@JsonIgnore
+	public byte[] salt;
 	
 }

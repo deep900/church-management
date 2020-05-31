@@ -9,6 +9,6 @@ package com.church.model;
  * @author pradheep
  *
  */
-public class Reviewer extends Worker {
+public class Reviewer extends ApplicationUser {
 
 }

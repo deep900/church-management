@@ -5,8 +5,10 @@ package com.church.service;
 
 import java.util.List;
 
+import org.springframework.data.mongodb.core.query.Update;
+
 import com.church.model.SessionData;
-import com.church.model.Worker;
+import com.church.model.ApplicationUser;
 
 /**
  * @author pradheep
@@ -27,14 +29,14 @@ public interface SecurityService {
 	
 	public SessionData getSessionDataById(String id);
 	
-	//---------------- Worker details --------------- //
-	public Worker getWorkerByEmail(String emailAddress);
+	//---------------- User details --------------- //
+	public ApplicationUser getUserByEmail(String emailAddress);
 	
-	public void updateWorker(Worker workerObj);
+	public void updateUser(Update updateObj,String emailAddress);
 	
-	public List<Worker> getAllWorkers();
+	public List<ApplicationUser> getAllUsers();
 	
-	public List<Worker> getWorkerByPrevilege(String previlege);
+	public List<ApplicationUser> getUserByPrevilege(String previlege);
 	
 	//-------------------------------------------------//
 }

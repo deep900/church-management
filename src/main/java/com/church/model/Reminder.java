@@ -28,6 +28,6 @@ public abstract class Reminder {
     
     public abstract void setMessage(String message);
     
-    public List<Worker> toWhomToRemind;
+    public List<ApplicationUser> toWhomToRemind;
 
 }

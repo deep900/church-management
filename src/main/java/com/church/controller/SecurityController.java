@@ -4,6 +4,7 @@
 package com.church.controller;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.church.model.ResponseModel;
 import com.church.model.SessionData;
 import com.church.security.AuthenticationRequest;
+import com.church.security.SecurityConstants;
 import com.church.service.SecurityService;
 import com.church.serviceimpl.SecurityServiceImpl;
 import com.church.util.APIConstants;
@@ -60,12 +62,23 @@ public class SecurityController extends BaseController {
 	@PostMapping(value=APIConstants.AUTHENTICATE)
 	public @ResponseBody ResponseModel authenticateRequest(HttpServletRequest httpServletRequest,
 			@RequestBody AuthenticationRequest authRequest) {
+		String sessionId = httpServletRequest.getHeader("sessionId");
+		authRequest.setSessionId(sessionId);
 		ResponseModel responseModel = getDefaultResponseModel();
 		if (null != authRequest && null != authRequest.getEmailAddress() && null != authRequest.getPassword()) {
-			log.info("Authentication request:" + authRequest.toString());
-			UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-					authRequest.getEmailAddress(), authRequest.getPassword());
-			Authentication authObj = authenticationProvider.authenticate(token);
+			log.info("Authentication request:" + authRequest.toString());			
+			Authentication authObj = authenticationProvider.authenticate(authRequest);
+			if(!authObj.isAuthenticated()){
+				log.error("Invalid credentials not authenticated.");
+				responseModel.setResponseCode(ApplicationConstants.INVALID_CREDENTIALS);
+				responseModel.setResponseMessage(ApplicationConstants.INVALID_CREDENTIALS_MSG);
+				return responseModel;
+			}
+			String jwt = authObj.getDetails().toString();
+			Map<String,String> securityDetails = new HashMap<String,String>();
+			securityDetails.put("securityToken", jwt);
+			responseModel.setObject(securityDetails);
+			log.info("Authentication successful :" + jwt);
 			return responseModel;
 
 		} else {

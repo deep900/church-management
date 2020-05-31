@@ -4,6 +4,7 @@
 package com.church.security;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,13 +15,24 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.church.model.SessionData;
 import com.church.service.SecurityService;
 import com.church.serviceimpl.SecurityServiceImpl;
 import com.church.util.APIConstants;
+import com.church.util.EncryptUtility;
+import com.church.util.SecurityUtility;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -41,12 +53,20 @@ public class CustomSecurityFilter extends OncePerRequestFilter {
 	@Autowired
 	private SecurityServiceImpl securityServiceImpl;
 
+	@Autowired
+	private SecurityUtility securityUtil;
+
+	@Autowired
+	private EncryptUtility encryptUtil;
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest servletRequest, HttpServletResponse servletResponse,
 			FilterChain fc) throws ServletException, IOException {
 		boolean skipFilter = canSkipFilter(servletRequest);
+		log.info("Can skip filter: " + skipFilter);		
 		boolean isValidSession = isValidSession(servletRequest);
-		if(!isValidSession){
+		log.info("Skip session: " + isValidSession);
+		if (!isValidSession) {
 			servletResponse.sendError(HttpStatus.FORBIDDEN.value(), "Invalid session");
 			return;
 		}
@@ -55,6 +75,41 @@ public class CustomSecurityFilter extends OncePerRequestFilter {
 			fc.doFilter(servletRequest, servletResponse);
 		} else {
 			// Authorize request //
+			String token = servletRequest.getHeader(SecurityConstants.AUTH_HEADER);
+			if (null == token) {
+				servletResponse.sendError(HttpStatus.FORBIDDEN.value(), "Invalid Authorization Header");
+				return;
+			}
+			try {
+				Claims claims = securityUtil.decodeJWT(token);
+				String roles = claims.get(SecurityConstants.CLAIM_ROLES).toString();
+				String[] roleArr = roles.split(",");
+				List<GrantedAuthority> grantedAuthList = new ArrayList<GrantedAuthority>();
+				for (int i = 0; i < roleArr.length; i++) {
+					SimpleGrantedAuthority grantedAuth = new SimpleGrantedAuthority(roleArr[i]);
+					grantedAuthList.add(grantedAuth);
+				}
+				String email = claims.getSubject();
+				String decryptedEmail = encryptUtil.decrypt(email, "");
+				AuthenticationRequest authentication = new AuthenticationRequest();
+				authentication.setGrantedAuthorities(grantedAuthList);
+				authentication.setEmailAddress(decryptedEmail);
+				authentication.setAuthenticated(true);
+				SecurityContext sc = SecurityContextHolder.getContext();
+				sc.setAuthentication(authentication);
+			} catch (ExpiredJwtException err) {
+				log.error("Error while parsing token", err);
+				servletResponse.sendError(HttpStatus.FORBIDDEN.value(), "Token expired - Login again");
+				return;
+			} catch (MalformedJwtException | UnsupportedJwtException | SignatureException err) {
+				log.error("Error while parsing token", err);
+				servletResponse.sendError(HttpStatus.FORBIDDEN.value(), "Token malformed or invalid - Login again");
+				return;
+			} catch (Exception err) {
+				log.error("Error while parsing token", err);
+				servletResponse.sendError(HttpStatus.FORBIDDEN.value(), "Internal server error ");
+				return;
+			}
 		}
 	}
 
@@ -75,19 +130,19 @@ public class CustomSecurityFilter extends OncePerRequestFilter {
 		return skipAPIList;
 	}
 
-	private boolean isValidSession(HttpServletRequest request){
+	private boolean isValidSession(HttpServletRequest request) {
 		// Validate only for request other than pre authorization //
-		if (request.getRequestURI().contains(APIConstants.PREPARE_LOGIN)){
+		if (request.getRequestURI().contains(APIConstants.PREPARE_LOGIN)) {
 			log.info("Skip the session id test for :" + APIConstants.PREPARE_LOGIN);
 			return true;
 		}
 		String sessionId = request.getHeader(SecurityService.SESSION_ID);
-		if(null == sessionId){
+		if (null == sessionId) {
 			log.error("Invalid session id");
 			return false;
 		}
 		SessionData sessionData = securityServiceImpl.getSessionDataById(sessionId);
-		if(null != sessionData){
+		if (null != sessionData) {
 			return true;
 		}
 		log.info("Invalid session id :" + sessionId);
