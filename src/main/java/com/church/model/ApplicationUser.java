@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.church.security.SecurityUserDetails;
+import com.church.util.UserTypeEnum;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
@@ -42,5 +43,7 @@ public class ApplicationUser {
 	
 	@JsonIgnore
 	public byte[] salt;
+	
+	public UserTypeEnum userType;
 	
 }

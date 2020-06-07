@@ -6,14 +6,12 @@ package com.church.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.church.management.publish.TaskAndEventPublisher;
 import com.church.model.ChurchEvent;
 import com.church.model.ResponseModel;
 import com.church.serviceimpl.ChurchEventServiceImpl;

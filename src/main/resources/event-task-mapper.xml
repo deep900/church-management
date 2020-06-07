@@ -1,0 +1,24 @@
+<!--
+   This XML file is to map the tasks for a given event.
+   1. timePlannedInDays = Estimated time for task
+   2. assignation = auto refers to auto assignation by system to engineers.
+   3. maxAssigned = refers to the maximum number of people this task can be assigned.
+       For example the review task can be assigned to two people at the same time.
+   4. sequence = refers to the sequence of task to be performed.
+   5. isParallel = refers to the task execution , shall be true if that can be executed in parallel.
+   -->
+<events>
+    <event name="birthday-greeting">
+        <task name="create-card" timePlannedInDays="0.5" assignation="auto" maxAssigned="1" sequence="1"
+              isParallel="false"></task>
+        <task name="review-card" timePlannedInDays="1" assignation="auto" maxAssigned="2" sequence="2"
+              isParallel="true"></task>
+    </event>
+
+    <event name="wedding-aniversary-greeting">
+        <task name="create-card" timePlannedInDays="0.5" assignation="auto" maxAssigned="1" sequence="1"
+              isParallel="false"></task>
+        <task name="review-card" timePlannedInDays="1" assignation="auto" maxAssigned="2" sequence="2"
+              isParallel="true"></task>
+    </event>
+</events>

@@ -3,6 +3,9 @@
  */
 package com.church.serviceimpl;
 
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +15,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import com.church.model.Engineer;
-import com.church.model.SessionData;
 import com.church.model.ApplicationUser;
+import com.church.model.SessionData;
 import com.church.service.SecurityService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +58,14 @@ public class SecurityServiceImpl implements SecurityService {
 	@Override
 	public void clearUnusedSession() {
 		log.info("Clearing the unused session data");
+		GregorianCalendar gregorianCalendar = new GregorianCalendar();
+		gregorianCalendar.setTime(new Date());
+		gregorianCalendar.add(GregorianCalendar.HOUR_OF_DAY, -5);
+		Timestamp toCompare = new Timestamp(gregorianCalendar.getTimeInMillis());
+		Query query = new Query();		
+		query.addCriteria(Criteria.where("timeIssued").lt(toCompare));
+		List<SessionData> sessionDataList = mongoOps.findAllAndRemove(query, SessionData.class);
+		log.info("Removed session data unused: " + sessionDataList.size());
 	}
 
 	@Override
@@ -64,10 +74,10 @@ public class SecurityServiceImpl implements SecurityService {
 	}
 
 	@Override
-	public Engineer getUserByEmail(String emailAddress) {
+	public ApplicationUser getUserByEmail(String emailAddress) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("emailAddress").is(emailAddress));
-		return mongoOps.findOne(query, Engineer.class);
+		return mongoOps.findOne(query, ApplicationUser.class);
 	}
 
 	@Override

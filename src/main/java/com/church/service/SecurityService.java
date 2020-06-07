@@ -24,7 +24,7 @@ public interface SecurityService {
 	
 	public void updateSession(SessionData sessionData);
 	
-	/* Sessions older than 3 days will be cleared */
+	/* Sessions older than 5 hours will be cleared */
 	public void clearUnusedSession();
 	
 	public SessionData getSessionDataById(String id);

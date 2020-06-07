@@ -8,32 +8,28 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.church.util.StatusEnum;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Document
 public abstract class Task {
 
 	@Id
-	private String id;
+	public String id;
 	
-	private String eventId;
+	public String eventId;
 	
-    private String taskName;
+    public String taskName;
 
-    private Timestamp startTime;
+    public Timestamp startTime;
 
-    private int estimatedHours;
+    public double estimatedHours;
 
-    private StatusEnum presentState;
+    public StatusEnum presentState;
 
-    private int taskSequence;
+    public int taskSequence;
     
-    private List<String> comments;
+    public List<String> comments;
 
-    private List<Reminder> reminders;
+    public List<Reminder> reminders;
 }

@@ -9,7 +9,6 @@ import java.util.TimeZone;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,9 +20,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.church.configuration.ApplicationConfiguration;
+import com.church.model.ApplicationUser;
 import com.church.model.ChurchEvent;
 import com.church.model.EmailTaskReminder;
-import com.church.model.Engineer;
 import com.church.model.ReOccurance;
 import com.church.model.Reminder;
 import com.church.security.SecurityConstants;
@@ -33,6 +32,7 @@ import com.church.util.EventTypeEnum;
 import com.church.util.FrequencyTypeEnum;
 import com.church.util.SecurityUtility;
 import com.church.util.StatusEnum;
+import com.church.util.UserTypeEnum;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -90,7 +90,8 @@ public class ChurchManagementApplication {
 
 		mongoOps.dropCollection("engineer");
 		mongoOps.createCollection("engineer");
-		Engineer user = new com.church.model.Engineer();
+		ApplicationUser user = new ApplicationUser();
+		user.setUserType(UserTypeEnum.administrator);
 		user.setContactNumber("87990011");
 		user.setCountryCode("+65");
 		user.setEmailAddress("alex@gmail.com");

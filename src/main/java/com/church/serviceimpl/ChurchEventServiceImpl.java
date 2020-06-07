@@ -54,8 +54,7 @@ public class ChurchEventServiceImpl implements EventService {
 	}
 
 	@Override
-	public String deleteEvent(String id) {
-		// TODO Auto-generated method stub
+	public String deleteEvent(String id) {		
 		return null;
 	}
 

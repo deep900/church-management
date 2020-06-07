@@ -9,6 +9,9 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.stereotype.Component;
+
+import com.church.serviceimpl.SecurityServiceImpl;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,27 +20,28 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class TaskMonitorJob implements Runnable, InitializingBean {
-
-	@Value("${task.monitor.fixed.delay.mills}")
+@Component
+public class SessionCleaner implements Runnable,InitializingBean {
+	
+	@Value("${session.cleaner.timer.task.delay}")
 	private long fixedDelayForTaskMonitor;
-
+	
 	@Autowired
-	private TaskManager taskManager;
-
+	private SecurityServiceImpl securityServiceImpl;
+	
 	@Autowired
 	private ThreadPoolTaskScheduler threadPoolTaskScheduler;
-
+	
 	@Override
 	public void run() {
-		log.info("Running the schedule job at " + new Date());
-		taskManager.remindTasks();
+		log.info("Cleaning unused sessions ");		
+		securityServiceImpl.clearUnusedSession();
 	}
 
 	@Override
-	public void afterPropertiesSet() throws Exception {
-		log.info("Scheduling a task monitor job at fixed interval ");
+	public void afterPropertiesSet() throws Exception {		
 		threadPoolTaskScheduler.scheduleAtFixedRate(this, new Date(), fixedDelayForTaskMonitor);
 	}
 
+	
 }
