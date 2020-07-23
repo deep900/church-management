@@ -7,7 +7,7 @@ package com.church.util;
  * @author pradheep
  *
  */
-public interface ApplicationConstants {
+public class ApplicationConstants {
 
 	public static final int SUCCESS_CODE = 1000;
 	
@@ -24,4 +24,10 @@ public interface ApplicationConstants {
 	public static final String INVALID_CREDENTIALS_MSG = "Invalid credentials";
 	
 	public static final String INVALID_SESSION_MSG = "Invalid session";
+	
+	public static final String BIRTHDAY_GREETING_EVENT = "birthday-greeting";
+	
+	public static final String WEDDING_GREETING_EVENT = "wedding-aniversary-greeting";
+	
+	public static final String AUTO_ASSIGN = "auto-assign";
 }

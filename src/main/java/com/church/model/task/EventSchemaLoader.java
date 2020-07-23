@@ -60,12 +60,18 @@ public class EventSchemaLoader extends DefaultHandler implements InitializingBea
 			String maxAssigned = attributes.getValue("maxAssigned");
 			String sequence = attributes.getValue("sequence");
 			String isParallel = attributes.getValue("isParallel");
+			String numberOfDaysToRemind = attributes.getValue("numberOfDaysToRemind");
+			String daysBeforeToCreateTask = attributes.getValue("daysBeforeToCreateTask");
+			String dependsOn = attributes.getValue("dependsOn");
 			taskSchema.setAssignation(assignation);
 			taskSchema.setMaxAssigned(Integer.parseInt(maxAssigned));
 			taskSchema.setName(taskName);
 			taskSchema.setParallel(Boolean.valueOf(isParallel));
 			taskSchema.setTimePlannedInDays(Double.parseDouble(timePlannedInDays));
 			taskSchema.setSequence(Integer.parseInt(sequence));
+			taskSchema.setNumberOfDaysToRemind(Integer.parseInt(numberOfDaysToRemind));
+			taskSchema.setDaysBeforeToCreateTask(Integer.parseInt(daysBeforeToCreateTask));
+			taskSchema.setDependsOn(dependsOn);
 			taskSchemaList.add(taskSchema);
 		}
 	}

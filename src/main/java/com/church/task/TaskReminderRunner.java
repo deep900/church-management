@@ -3,7 +3,6 @@
  */
 package com.church.task;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,10 +31,10 @@ public class TaskReminderRunner implements Runnable {
 			log.info("No runnable reminders");
 			return;
 		}
-		List<Reminder> executableReminders = reminders.stream().filter(x -> x.getReminderTime().after(new Date()))
-				.collect(Collectors.toList());
-		log.info("Running :" + executableReminders.size() + " reminders.");
-		executableReminders.forEach(x -> x.remind());
+		/*List<Reminder> executableReminders = reminders.stream().filter(x -> x.getReminderTime().after(new Date()))
+				.collect(Collectors.toList());*/
+		log.info("Running :" + reminders.size() + " reminders.");
+		reminders.forEach(x -> x.remind());
 	}
 
 }

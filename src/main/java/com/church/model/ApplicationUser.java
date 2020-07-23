@@ -5,6 +5,7 @@ package com.church.model;
 
 import java.util.List;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.church.security.SecurityUserDetails;
@@ -24,6 +25,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ApplicationUser {
+	
+	@Id
+	private String Id;
 
 	public String name;
 	
@@ -44,6 +48,6 @@ public class ApplicationUser {
 	@JsonIgnore
 	public byte[] salt;
 	
-	public UserTypeEnum userType;
+	public List<UserTypeEnum> userTypeList;
 	
 }

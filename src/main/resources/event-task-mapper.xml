@@ -10,15 +10,15 @@
 <events>
     <event name="birthday-greeting">
         <task name="create-card" timePlannedInDays="0.5" assignation="auto" maxAssigned="1" sequence="1"
-              isParallel="false"></task>
+              isParallel="false" numberOfDaysToRemind="7" daysBeforeToCreateTask="-30" dependsOn=""></task>
         <task name="review-card" timePlannedInDays="1" assignation="auto" maxAssigned="2" sequence="2"
-              isParallel="true"></task>
+              isParallel="true" numberOfDaysToRemind="3" daysBeforeToCreateTask="-5" dependsOn="create-card"></task>
     </event>
 
     <event name="wedding-aniversary-greeting">
         <task name="create-card" timePlannedInDays="0.5" assignation="auto" maxAssigned="1" sequence="1"
-              isParallel="false"></task>
+              isParallel="false" numberOfDaysToRemind="7" daysBeforeToCreateTask="-30" dependsOn=""></task>
         <task name="review-card" timePlannedInDays="1" assignation="auto" maxAssigned="2" sequence="2"
-              isParallel="true"></task>
+              isParallel="true" numberOfDaysToRemind="3" daysBeforeToCreateTask="-5" dependsOn="create-card"></task>
     </event>
 </events>

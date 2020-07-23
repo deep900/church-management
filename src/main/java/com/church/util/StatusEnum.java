@@ -9,7 +9,8 @@ package com.church.util;
  */
 public enum StatusEnum {
 
-	scheduled("scheduled"), inprogress("inprogress"),completed("completed"),onhold("onhold"),cancelled("cancelled");
+	scheduled("scheduled"), scheduledAndAssigned("scheduledAndAssigned"), inprogress("inprogress"), completed(
+			"completed"), onhold("onhold"), cancelled("cancelled");
 
 	public final String label;
 

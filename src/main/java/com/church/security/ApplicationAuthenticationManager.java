@@ -57,6 +57,7 @@ public class ApplicationAuthenticationManager implements AuthenticationProvider 
 			}
 			String encryptedEmail = encryptUtility.encrypt(emailAddress, "");
 			byte[] salt = userObj.getSalt();
+			log.debug("Salt" + new String(salt));
 			String _pass = securityUtil.getPasswordToCompare(salt, userObj.getUserDetails().getPassword());
 			log.info("Printing the password: " + _pass);
 			String sessionId = request.getSessionId();
@@ -67,9 +68,10 @@ public class ApplicationAuthenticationManager implements AuthenticationProvider 
 			} catch (NoSuchAlgorithmException err) {
 				log.error("Error while user authentication , no such algorithm", err);
 			}
-			md.update(sessionId.getBytes());
+			//md.update(sessionId.getBytes());
+			
 			byte[] hashedPassword = md.digest(_pass.getBytes(StandardCharsets.UTF_8));
-			String hashHexPassword = bytesToHex(hashedPassword);
+			String hashHexPassword = bytesToHexV1(hashedPassword);
 			log.info("Password :" + hashHexPassword);
 			if (request.getPassword().equals(hashHexPassword)) {
 				request.setAuthenticated(true);
@@ -80,9 +82,21 @@ public class ApplicationAuthenticationManager implements AuthenticationProvider 
 				log.info("Email:" + emailAddress + ", authentication success at:" + new Date());
 				return request;
 			}
+			else{
+				log.error("Password do not match " + request.getPassword() + " And " + hashHexPassword);
+			}
 		}
 		return authentication;
 	}
+	
+	public String bytesToHexV1(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+
 
 	private static String bytesToHex(byte[] hash) {
 		StringBuffer hexString = new StringBuffer();

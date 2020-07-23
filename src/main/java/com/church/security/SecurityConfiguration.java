@@ -1,7 +1,5 @@
 package com.church.security;
 
-import java.util.Arrays;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,8 +7,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-
-import com.church.util.APIConstants;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,10 +32,24 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		auth.userDetailsService(userDetailsService()).passwordEncoder(passwordEncoder());
 		auth.authenticationProvider(getAuthenticationProvider());
 	}
+	
+	@Bean(name="corsFilter")
+	public CorsFilter corsFilter() {
+	    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+	    CorsConfiguration config = new CorsConfiguration();
+	    config.setAllowCredentials(true);
+	    config.addAllowedOrigin("*");
+	    config.addAllowedHeader("*");
+	    config.addAllowedMethod("*");
+	    source.registerCorsConfiguration("/**", config);
+	    CorsFilter bean = new CorsFilter(source);	   
+	    return bean;
+	}	
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {	
 		http.csrf().disable();
+		http.cors().and().addFilter(corsFilter());
 		http.antMatcher("**/authenticateReq**").anonymous();
 		http.antMatcher("**/prepareForLogin**").anonymous();
 		http.authorizeRequests().antMatchers("**/admin/**").hasAnyRole(SecurityConstants.ROLE_ADMIN_USER);

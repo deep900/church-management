@@ -28,4 +28,10 @@ public class TaskSchema {
 	
 	public boolean isParallel = false;
 	
+	public int numberOfDaysToRemind;
+	
+	public int daysBeforeToCreateTask;
+	
+	public String dependsOn;
+	
 }

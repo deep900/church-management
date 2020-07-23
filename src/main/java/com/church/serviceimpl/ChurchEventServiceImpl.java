@@ -4,15 +4,15 @@
 package com.church.serviceimpl;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Service;
 
+import com.church.data.repository.EventRepository;
 import com.church.management.publish.TaskAndEventPublisher;
 import com.church.model.ChurchEvent;
 import com.church.model.Event;
-import com.church.service.EventService;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -22,46 +22,30 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-public class ChurchEventServiceImpl implements EventService {
+public class ChurchEventServiceImpl {
 
-	@Autowired
-	private MongoOperations mongoOps;
-	
 	@Autowired
 	private TaskAndEventPublisher taskAndEventPublisher;
 
-	@Override
+	@Autowired
+	private EventRepository eventRepository;
+
 	public List<ChurchEvent> getAllEvents() {
-		List<ChurchEvent> results = mongoOps.findAll(ChurchEvent.class);
-		log.info("Found :" + results.size() + " records");
-		return results;
+		return eventRepository.findAll();
 	}
 
-	@Override
-	public Event getEventById(String id) {		
-		return null;
-	}
-
-	@Override
 	public String addEvent(Event event) {
-		if(event instanceof ChurchEvent){
-		ChurchEvent churchEvent = (ChurchEvent) event;
-		churchEvent = mongoOps.save(churchEvent);
-		taskAndEventPublisher.publishEvent(churchEvent);
-		return churchEvent.getId();
+		log.info("Saving a new event:" + event.toString());
+		if (event instanceof ChurchEvent) {
+			ChurchEvent churchEvent = (ChurchEvent) event;
+			churchEvent = eventRepository.save(churchEvent);
+			taskAndEventPublisher.publishEvent(churchEvent);
+			return churchEvent.getId();
 		}
 		return null;
 	}
 
-	@Override
-	public String deleteEvent(String id) {		
-		return null;
-	}
-
-	@Override
-	public String updateEvent(Event event) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+	public void updateEvent(ChurchEvent eventObj) {
+		eventRepository.save(eventObj);
+	}	
 }

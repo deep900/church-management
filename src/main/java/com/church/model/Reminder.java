@@ -1,7 +1,8 @@
 package com.church.model;
 
 import java.sql.Timestamp;
-import java.util.List;
+
+import com.church.notify.EmailNotifyService;
 
 import lombok.Data;
 import lombok.Getter;
@@ -24,10 +25,14 @@ public abstract class Reminder {
 
     public Timestamp reminderTime;
 
-    public abstract void remind();
+    public abstract boolean remind();
     
     public abstract void setMessage(String message);
     
-    public List<ApplicationUser> toWhomToRemind;
+    public abstract void addTaskUser(ApplicationUser applicationUser);
+    
+    public abstract void setEmailNotifyService(EmailNotifyService emailNotifyService);
+    
+    public boolean active;
 
 }
