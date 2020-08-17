@@ -97,6 +97,7 @@ public class CustomSecurityFilter extends OncePerRequestFilter {
 				authentication.setAuthenticated(true);
 				SecurityContext sc = SecurityContextHolder.getContext();
 				sc.setAuthentication(authentication);
+				fc.doFilter(servletRequest, servletResponse);
 			} catch (ExpiredJwtException err) {
 				log.error("Error while parsing token", err);
 				servletResponse.sendError(HttpStatus.FORBIDDEN.value(), "Token expired - Login again");

@@ -25,8 +25,8 @@ import com.church.configuration.ApplicationConfiguration;
 import com.church.data.repository.EventRepository;
 import com.church.data.repository.TaskRepository;
 import com.church.model.ApplicationUser;
-import com.church.model.ChurchEvent;
 import com.church.model.EmailTaskReminder;
+import com.church.model.Event;
 import com.church.model.ReOccurance;
 import com.church.model.Reminder;
 import com.church.security.SecurityConstants;
@@ -71,7 +71,7 @@ public class ChurchManagementApplication {
 	@PostConstruct
 	public void init() {
 		try {
-			//addEvents();
+			addEvents();
 			taskAllotmentManager.init();
 			Thread.currentThread().sleep(5000);
 			taskAllotmentManager.loadTasksForAssignment();
@@ -84,7 +84,7 @@ public class ChurchManagementApplication {
 	private void addEvents() {
 		mongoOps.dropCollection("churchEvent");
 		mongoOps.createCollection("churchEvent");
-		ChurchEvent event = new ChurchEvent();
+		Event event = new Event();
 		event.setId(UUID.randomUUID().toString());
 		event.setEventName(ApplicationConstants.BIRTHDAY_GREETING_EVENT);
 		event.setRemarks("Birthday for pradheep");
@@ -96,7 +96,7 @@ public class ChurchManagementApplication {
 		event.setStartTime(new Timestamp(calendar.getTime().getTime()));
 		calendar.set(1979, 07, 22, 23, 59);
 		event.setEndTime(new Timestamp(calendar.getTime().getTime()));
-		event.setEventType(EventTypeEnum.birthday_event);
+		event.setEventType(EventTypeEnum.BirthdayEvent);
 		ReOccurance reOccurance = new ReOccurance();
 		reOccurance.setActive(true);
 		reOccurance.setReOccuranceFrequency(FrequencyTypeEnum.yearly);

@@ -17,6 +17,8 @@ public class ApplicationConstants {
 	
 	public static final int INVALID_SESSION = 2002;
 	
+	public static final int INTERNAL_SERVER_ERROR = 2003;
+	
 	public static final String SUCCESS_RESPONSE = "Success";
 	
 	public static final String FAILURE_RESPONSE = "Internal Server Error";
@@ -30,4 +32,6 @@ public class ApplicationConstants {
 	public static final String WEDDING_GREETING_EVENT = "wedding-aniversary-greeting";
 	
 	public static final String AUTO_ASSIGN = "auto-assign";
+	
+	public static final String SERVER_ERROR = "Internal server error";
 }

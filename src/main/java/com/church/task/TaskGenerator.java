@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
 import com.church.data.repository.EventRepository;
 import com.church.data.repository.TaskRepository;
 import com.church.management.publish.TaskAndEventPublisher;
-import com.church.model.ChurchEvent;
 import com.church.model.EmailTaskReminder;
 import com.church.model.Event;
 import com.church.model.Reminder;
@@ -93,9 +92,8 @@ public final class TaskGenerator  {
 		}
 		log.info("Preparing the tasks and reminders for event:" + event);
 		log.info("Generating task for event name :" + event.getEventName());
-		persistTasks(createEventTasks(event));
-		ChurchEvent cEvent = (ChurchEvent) event;
-		taskCreatedUpdateEvent(cEvent);
+		persistTasks(createEventTasks(event));		
+		taskCreatedUpdateEvent(event);
 	}
 
 	private ArrayList<Task> createEventTasks(Event event) {
@@ -236,7 +234,7 @@ public final class TaskGenerator  {
 		taskRepository.saveAll(taskList);
 	}
 
-	private void taskCreatedUpdateEvent(ChurchEvent event) {
+	private void taskCreatedUpdateEvent(Event event) {
 		event.setTaskGenerated(true);
 		churchEventServiceImpl.updateEvent(event);
 		log.info("Updated event.");

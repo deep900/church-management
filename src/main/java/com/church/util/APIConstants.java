@@ -26,5 +26,7 @@ public interface APIConstants {
 	public static final String ADD_USER = "/api/admin/addUser";
 	
 	public static final String UPDATE_TASK = "/api/updateTask";
+	
+	public static final String LOGOUT = "/api/logout";
 
 }

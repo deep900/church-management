@@ -9,7 +9,7 @@ package com.church.util;
  */
 public enum EventTypeEnum {
 
-	birthday_event("Birthday event"), wedding_anniversary("Wedding anniversary");
+	BirthdayEvent("BirthdayEvent"), WeddingAnniversary("WeddingAnniversary");
 
 	public final String label;
 

@@ -10,6 +10,7 @@ import org.springframework.data.annotation.Id;
 
 import com.church.util.EventTypeEnum;
 import com.church.util.StatusEnum;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,7 +27,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class Event {
+public class Event {
 
 	@Id
 	private String Id;
@@ -39,11 +40,13 @@ public abstract class Event {
 	/**
 	 * Represents the start time of the event.
 	 */
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	private Timestamp startTime;
 
 	/**
 	 * Represents the end time of the event.
 	 */
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
 	private Timestamp endTime;
 
 	/**

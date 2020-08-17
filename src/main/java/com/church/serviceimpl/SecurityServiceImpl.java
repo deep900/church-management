@@ -15,8 +15,11 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import com.church.data.repository.BlacklistedTokenRepository;
 import com.church.model.ApplicationUser;
+import com.church.model.BlackListToken;
 import com.church.model.SessionData;
+import com.church.service.LogoutService;
 import com.church.service.SecurityService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +30,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Service
 @Slf4j
-public class SecurityServiceImpl implements SecurityService {
+public class SecurityServiceImpl implements SecurityService, LogoutService {
 
 	@Autowired
 	private MongoOperations mongoOps;
+
+	@Autowired
+	private BlacklistedTokenRepository blackListTokenRepository;
 
 	@Override
 	public void saveSession(SessionData sessionData) {
@@ -62,7 +68,7 @@ public class SecurityServiceImpl implements SecurityService {
 		gregorianCalendar.setTime(new Date());
 		gregorianCalendar.add(GregorianCalendar.HOUR_OF_DAY, -5);
 		Timestamp toCompare = new Timestamp(gregorianCalendar.getTimeInMillis());
-		Query query = new Query();		
+		Query query = new Query();
 		query.addCriteria(Criteria.where("timeIssued").lt(toCompare));
 		List<SessionData> sessionDataList = mongoOps.findAllAndRemove(query, SessionData.class);
 		log.info("Removed session data unused: " + sessionDataList.size());
@@ -96,5 +102,27 @@ public class SecurityServiceImpl implements SecurityService {
 	@Override
 	public List<ApplicationUser> getUserByPrevilege(String previlege) {
 		return null;
+	}
+
+	@Override
+	public boolean logoutUser(String token) {
+		try {
+			BlackListToken blackListedToken = new BlackListToken();
+			blackListedToken.setBlackListedToken(token);
+			blackListedToken.setCleanTime(getTimeToClean());
+			blackListTokenRepository.save(blackListedToken);
+			log.info("Blacklisted the token successfully:" + token);
+			return true;
+		} catch (Exception err) {
+			log.error("Error while logout :" + token, err);
+			return false;
+		}
+	}
+	
+	private Timestamp getTimeToClean(){
+		GregorianCalendar calendar = new GregorianCalendar();
+		calendar.setTime(new Date());
+		calendar.add(GregorianCalendar.HOUR_OF_DAY, 5);
+		return new Timestamp(calendar.getTime().getTime());
 	}
 }

@@ -14,7 +14,6 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -27,7 +26,6 @@ import com.church.security.SecurityConstants;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.TextCodec;
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +38,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class SecurityUtility {
 
-	@Value("{jwt.token.time.to.line}")
-	private final String timeToLive = "30000";
+	@Value("{jwt.token.time.to.live}")
+	private final String timeToLive = "3600000";
 
 	//@Value("{application.signing.key}")
 	private final String key = "7yhfkrs-9kjmsi-uyrbcv2-plmzxcd";
@@ -106,8 +104,8 @@ public class SecurityUtility {
 			}
 		}
 		String jws = Jwts.builder().setIssuer(issuer).claim(SecurityConstants.CLAIM_ROLES, buffer.toString())
-				.setIssuedAt(Date.from(Instant.ofEpochSecond(currentTime.getTime())))
-				.setExpiration(Date.from(Instant.ofEpochSecond(calendar.getTimeInMillis())))
+				.setIssuedAt(Date.from(Instant.ofEpochMilli(currentTime.getTime())))
+				.setExpiration(Date.from(Instant.ofEpochMilli(calendar.getTimeInMillis())))
 				.signWith(SignatureAlgorithm.HS512, TextCodec.BASE64.decode(key)).setSubject(userId).compact();
 		return jws;
 	}

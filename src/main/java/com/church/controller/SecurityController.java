@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.church.model.ResponseModel;
 import com.church.model.SessionData;
 import com.church.security.AuthenticationRequest;
-import com.church.security.SecurityConstants;
 import com.church.service.SecurityService;
 import com.church.serviceimpl.SecurityServiceImpl;
 import com.church.util.APIConstants;
@@ -89,4 +87,19 @@ public class SecurityController extends BaseController {
 		}
 	}	
 	
+	@GetMapping(value=APIConstants.LOGOUT)
+	public @ResponseBody ResponseModel logoutRequest(HttpServletRequest httpServletRequest){		
+		String authKey = httpServletRequest.getHeader("Authorization");		
+		log.info("Trying to logout the user:" + authKey);
+		if(null != authKey){
+			boolean flag = securityService.logoutUser(authKey);
+			if(flag){
+				return getDefaultResponseModel();
+			}
+			else{
+				return getFailureResponseModel();
+			}
+		}
+		return getFailureResponseModel();
+	}
 }

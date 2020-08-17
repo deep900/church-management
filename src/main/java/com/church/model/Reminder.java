@@ -3,6 +3,7 @@ package com.church.model;
 import java.sql.Timestamp;
 
 import com.church.notify.EmailNotifyService;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.Data;
 import lombok.Getter;
@@ -10,7 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * This class is to make a reminder for the task worker, can be a engineer or a reviewer.
+ * This class is to make a reminder for the task worker, can be a engineer or a
+ * reviewer.
  * 
  * @author pradheep
  *
@@ -19,20 +21,29 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter
 @Getter
-public abstract class Reminder {
-	
+public class Reminder {
+
 	public Integer reminderCnt;
 
-    public Timestamp reminderTime;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+	public Timestamp reminderTime;
 
-    public abstract boolean remind();
-    
-    public abstract void setMessage(String message);
-    
-    public abstract void addTaskUser(ApplicationUser applicationUser);
-    
-    public abstract void setEmailNotifyService(EmailNotifyService emailNotifyService);
-    
-    public boolean active;
+	public boolean remind() {
+		return true;
+	}
+
+	public void setMessage(String message) {
+
+	}
+
+	public void addTaskUser(ApplicationUser applicationUser) {
+
+	}
+
+	public void setEmailNotifyService(EmailNotifyService emailNotifyService) {
+
+	}
+
+	public boolean active;
 
 }
