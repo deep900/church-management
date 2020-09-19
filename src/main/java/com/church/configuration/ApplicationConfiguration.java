@@ -12,11 +12,11 @@ import java.util.Properties;
 
 import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.CustomConversions;
 import org.springframework.data.convert.CustomConversions.StoreConversions;
@@ -36,13 +36,14 @@ import com.church.model.EmailTaskReminder;
 import com.church.notify.EmailNotifyService;
 import com.church.task.TaskAllotmentManager;
 import com.church.task.TaskManager;
-import com.church.task.TaskMonitorJob;
 import com.church.task.TaskReminderRunner;
+import com.church.uploader.S3Uploader;
 import com.church.util.DelegateHandler;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Configuration
+@ComponentScan(basePackages = { "com.church.jobs" })
 @Slf4j
 public class ApplicationConfiguration {
 
@@ -112,11 +113,6 @@ public class ApplicationConfiguration {
 	}
 
 	@Bean
-	public TaskMonitorJob getTaskMonitorJob() {
-		return new TaskMonitorJob();
-	}
-
-	@Bean
 	public TaskManager getTaskManager() {
 		return new TaskManager();
 	}
@@ -153,7 +149,8 @@ public class ApplicationConfiguration {
 		return mailSender;
 	}
 
-	private Properties loadEmailProperties() {
+	@Bean(value = "emailProperties")
+	public Properties loadEmailProperties() {
 		String path = "/opt/tomcat/conf/email/email.properties";
 		File fObj = new File(path);
 		FileInputStream fis = null;
@@ -171,9 +168,18 @@ public class ApplicationConfiguration {
 		return prop;
 	}
 
-		
 	@Bean
-	public EmailNotifyService getEmailNotifyService(){
+	public EmailNotifyService getEmailNotifyService() {
 		return new EmailNotifyService();
+	}
+
+	@Bean
+	public EmailTaskReminder getEmailTaskReminder() {
+		return new EmailTaskReminder();
+	}
+
+	@Bean
+	public S3Uploader getS3Uploader() {
+		return new S3Uploader();
 	}
 }

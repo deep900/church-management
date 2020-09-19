@@ -18,6 +18,8 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
@@ -67,11 +69,15 @@ public class ChurchManagementApplication {
 
 	@Autowired
 	private TaskAllotmentManager taskAllotmentManager;
+	
+	@Autowired
+	private JavaMailSender mailSender;
 
 	@PostConstruct
 	public void init() {
 		try {
-			addEvents();
+			//testEmail();
+			//addEvents();
 			taskAllotmentManager.init();
 			Thread.currentThread().sleep(5000);
 			taskAllotmentManager.loadTasksForAssignment();
@@ -80,9 +86,19 @@ public class ChurchManagementApplication {
 		}
 		log.info("Record saved.");
 	}
+	
+	public void testEmail(){
+		SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+		simpleMailMessage.setFrom("admin@localhost");
+		simpleMailMessage.setTo("deep_90@yahoo.com");
+		simpleMailMessage.setSentDate(new Date());
+		simpleMailMessage.setSubject("Test email : Email Reminder");
+		simpleMailMessage.setText("Content here ..");
+		mailSender.send(simpleMailMessage);
+	}
 
 	private void addEvents() {
-		mongoOps.dropCollection("churchEvent");
+		/*mongoOps.dropCollection("churchEvent");
 		mongoOps.createCollection("churchEvent");
 		Event event = new Event();
 		event.setId(UUID.randomUUID().toString());
@@ -115,23 +131,25 @@ public class ChurchManagementApplication {
 		reminder2.setReminderTime(new Timestamp(calendar.getTime().getTime()));
 		reminderList.add(reminder1);
 		reminderList.add(reminder2);
-		event.setReminders(reminderList);
-		event.setTaskGenerated(false);
+		event.setReminders(reminderList);	*/	
 
 		mongoOps.dropCollection("applicationUser");
 		mongoOps.createCollection("applicationUser");
 		List<GrantedAuthority> engineerAuthorities = new ArrayList<GrantedAuthority>();
 		engineerAuthorities.add(new SimpleGrantedAuthority(SecurityConstants.ROLE_TASK_WORKER));
+		engineerAuthorities.add(new SimpleGrantedAuthority(SecurityConstants.ROLE_USER));
 		createApplicationUser("Pradheep", "deep90@gmail.com", engineerAuthorities, UserTypeEnum.engineer);
 
 		List<GrantedAuthority> adminAuthorities = new ArrayList<GrantedAuthority>();
 		adminAuthorities.add(new SimpleGrantedAuthority(SecurityConstants.ROLE_ADMIN_USER));
+		adminAuthorities.add(new SimpleGrantedAuthority(SecurityConstants.ROLE_USER));
 		createApplicationUser("Sushil", "deep_90@yahoo.com", adminAuthorities, UserTypeEnum.administrator);
 
 		List<GrantedAuthority> reviewAuthorities = new ArrayList<GrantedAuthority>();
 		reviewAuthorities.add(new SimpleGrantedAuthority(SecurityConstants.ROLE_TASK_REVIEWER));
+		reviewAuthorities.add(new SimpleGrantedAuthority(SecurityConstants.ROLE_USER));
 		createApplicationUser("John Britto", "deep_90@yahoo.com", reviewAuthorities, UserTypeEnum.reviewer);
-		template.save(event);
+		//template.save(event);
 
 		taskGenerator.prepareAllEvents();
 	}

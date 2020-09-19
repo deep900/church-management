@@ -5,8 +5,17 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
-import org.springframework.mail.SimpleMailMessage;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.church.notify.EmailNotifyService;
 
@@ -16,16 +25,32 @@ import lombok.extern.slf4j.Slf4j;
 public class EmailTaskReminder extends Reminder {
 
 	private String messageContent = "";
-	
+
 	private EmailNotifyService emailMessenger;
 
-	private List<ApplicationUser> assignedUsers = new ArrayList<ApplicationUser>();		
+	private List<ApplicationUser> assignedUsers = new ArrayList<ApplicationUser>();
+	
+	@Autowired
+	@Qualifier("emailProperties")
+	private Properties emailProperties;
 
 	@Override
 	public boolean remind() {
 		if (canRemindNow() && active) {
-			log.info("Reminding the task now ");			
-			SimpleMailMessage message = new SimpleMailMessage();
+			log.info("Reminding the task now ");
+			Properties props = new Properties();
+			props.put("mail.smtp.auth", emailProperties.get("mail.smtp.auth"));
+			props.put("mail.smtp.starttls.enable", emailProperties.get("mail.smtp.starttls.enable"));
+			props.put("mail.smtp.host", emailProperties.get("email.host"));
+			props.put("mail.smtp.port", emailProperties.get("email.sender.port"));
+
+			Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+				protected PasswordAuthentication getPasswordAuthentication() {
+					return new PasswordAuthentication(emailProperties.getProperty("username"),
+							emailProperties.getProperty("password"));
+				}
+			});
+			MimeMessage message = new MimeMessage(session);
 			List<String> toList = new ArrayList<String>();
 			Iterator<ApplicationUser> iter = assignedUsers.iterator();
 			String prefix = "";
@@ -34,9 +59,15 @@ public class EmailTaskReminder extends Reminder {
 				prefix = "Dear " + user.getName() + ",<br>";
 				toList.add(user.emailAddress);
 			}
-			message.setTo(toList.get(0));			
-			message.setText(prefix + messageContent);
-			log.info("Message :" + message.getText());
+			try {
+				message.setFrom(emailProperties.getProperty("from.address"));
+				message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toList.get(0)));
+				message.setContent(prefix + messageContent, "text/html");
+				message.setSubject("Task reminder - CMII - Important");
+
+			} catch (MessagingException e) {
+				e.printStackTrace();
+			}
 			return emailMessenger.notifyMessage(message);
 		} else {
 			log.info("Cannot remind the task now / not active ");
@@ -61,12 +92,12 @@ public class EmailTaskReminder extends Reminder {
 	}
 
 	@Override
-	public void setMessage(String message) {		
+	public void setMessage(String message) {
 		this.messageContent = message;
 	}
 
 	@Override
-	public void setEmailNotifyService(EmailNotifyService emailNotifyService) {		
+	public void setEmailNotifyService(EmailNotifyService emailNotifyService) {
 		this.emailMessenger = emailNotifyService;
-	}	
+	}
 }

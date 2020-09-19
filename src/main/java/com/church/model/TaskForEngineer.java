@@ -27,5 +27,5 @@ public class TaskForEngineer {
 	@Id
 	private String taskId;
 	
-	private List<String> userIdList;
+	private String userId;
 }

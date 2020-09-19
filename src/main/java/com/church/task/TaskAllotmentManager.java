@@ -46,7 +46,7 @@ public class TaskAllotmentManager {
 	@Autowired
 	private ApplicationUserRepository applicationUserRepository;
 
-	private HashMap<Task, List<ApplicationUser>> taskUserMap = new HashMap<Task, List<ApplicationUser>>();
+	private static HashMap<Task, List<ApplicationUser>> taskUserMap = new HashMap<Task, List<ApplicationUser>>();
 
 	private HashMap<String, Integer> taskAssignedToUserMap = new HashMap<String, Integer>();
 
@@ -81,17 +81,14 @@ public class TaskAllotmentManager {
 					continue;
 				}
 			}
-			List<String> userIdList = taskForEngineerObj.getUserIdList();
-			Iterator<String> iter = userIdList.iterator();
+
+			String userId = taskForEngineerObj.getUserId();
 			ArrayList<ApplicationUser> applicationUserList = new ArrayList<ApplicationUser>();
-			while (iter.hasNext()) {
-				String userId = iter.next();
-				Optional<ApplicationUser> applicationUserObj = applicationUserRepository.findById(userId);
-				if (applicationUserObj.isPresent()) {
-					ApplicationUser userObj = applicationUserObj.get();
-					applicationUserList.add(userObj);
-					incrementTaskCountForUser(userObj);
-				}
+			Optional<ApplicationUser> applicationUserObj = applicationUserRepository.findById(userId);
+			if (applicationUserObj.isPresent()) {
+				ApplicationUser userObj = applicationUserObj.get();
+				applicationUserList.add(userObj);
+				incrementTaskCountForUser(userObj);
 			}
 			taskUserMap.put(task, applicationUserList);
 		}
@@ -156,6 +153,9 @@ public class TaskAllotmentManager {
 	 */
 	private ApplicationUser getBestUserForTask(String taskName) {
 		log.info("Trying to find the best user for the task. :" + taskName);
+		if (taskUserMap.isEmpty()) {
+			return getUserForTaskName(taskName);
+		}
 		List<Task> taskListOfType = taskUserMap.keySet().stream().filter(x -> x.getTaskName().equals(taskName))
 				.collect(Collectors.toList());
 		List<ApplicationUser> masterList = new ArrayList<ApplicationUser>();
@@ -204,25 +204,24 @@ public class TaskAllotmentManager {
 	 * 
 	 * @param taskObj
 	 */
-	public void autoAssignTask(Task taskObj) {
+	public synchronized void autoAssignTask(Task taskObj) {
 		if (null == taskObj.getTaskName()) {
 			log.error("Invalid task name cannot be null");
 			return;
 		}
 		Optional<TaskForEngineer> taskAssignedAlready = taskAndUserRepository.findById(taskObj.getId());
 		if (taskAssignedAlready.isPresent()) {
-			log.info("Task is already assigned to :" + taskAssignedAlready.get().getUserIdList());
+			log.info("Task is already assigned to :" + taskAssignedAlready.get().getUserId());
 			return;
 		}
 		ApplicationUser user = getBestUserForTask(taskObj.getTaskName());
 		if (null != user) {
 			TaskForEngineer taskForEngineer = new TaskForEngineer();
-			ArrayList<String> userIdList = new ArrayList<String>();
-			taskForEngineer.setUserIdList(userIdList);
 			taskForEngineer.setTaskId(taskObj.getId());
-			taskForEngineer.getUserIdList().add(user.getId());
+			taskForEngineer.setUserId(user.getId());
 			taskAndUserRepository.save(taskForEngineer);
 			incrementTaskCountForUser(user);
+			taskObj.asignee = user.getName();
 			updateReminder(taskObj, user);
 			log.info(taskObj.getTaskName() + " has been assigned to " + user.getName());
 		} else {

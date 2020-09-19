@@ -70,14 +70,7 @@ public class Event {
 	 * This reminds about the actual event happening , to be used when the event
 	 * has to be reminded on that day of occurance.
 	 */
-	private List<Reminder> reminders;
-
-	/**
-	 * This flag denotes if the tasks are generated for this event already in a
-	 * cycle. This helps to identify and creating the tasks again for this
-	 * event.
-	 */
-	private boolean taskGenerated;
+	private List<Reminder> reminders;	
 
 	/**
 	 * Special note for the events.

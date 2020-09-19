@@ -30,7 +30,6 @@ import com.church.model.task.DefaultTask;
 import com.church.model.task.EventSchema;
 import com.church.model.task.EventSchemaLoader;
 import com.church.model.task.TaskSchema;
-import com.church.serviceimpl.ChurchEventServiceImpl;
 import com.church.util.StatusEnum;
 
 import lombok.extern.slf4j.Slf4j;
@@ -46,16 +45,13 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public final class TaskGenerator  {
+public final class TaskGenerator {
 
 	@Autowired
 	private TaskRepository taskRepository;
 
 	@Autowired
 	private EventSchemaLoader eventSchemaLoader;
-
-	@Autowired
-	private ChurchEventServiceImpl churchEventServiceImpl;
 
 	@Autowired
 	private TaskAndEventPublisher taskAndEventPublisher;
@@ -66,7 +62,10 @@ public final class TaskGenerator  {
 	private final int INITIAL_REMINDER_COUNTER = 0;
 
 	List<EventSchema> eventSchemaList = null;
-	
+
+	@Autowired
+	EmailTaskReminder emailReminder;
+
 	@PostConstruct
 	private void loadEventSchema() {
 		eventSchemaList = eventSchemaLoader.getEventSchemaList();
@@ -86,14 +85,17 @@ public final class TaskGenerator  {
 	 * @param event
 	 */
 	public synchronized void prepareTaskAndReminder(Event event) {
-		if (event.isTaskGenerated()) {
-			log.info("Task already generated.");
-			return;
-		}
 		log.info("Preparing the tasks and reminders for event:" + event);
 		log.info("Generating task for event name :" + event.getEventName());
-		persistTasks(createEventTasks(event));		
-		taskCreatedUpdateEvent(event);
+		List<Task> taskList = createEventTasks(event);
+		persistTasks(taskList);
+		publishTaskCreated(taskList);
+	}
+
+	private void publishTaskCreated(List<Task> taskList) {
+		taskList.forEach(task -> {
+			taskAndEventPublisher.publishAutoAssignTask(task);
+		});
 	}
 
 	private ArrayList<Task> createEventTasks(Event event) {
@@ -102,10 +104,14 @@ public final class TaskGenerator  {
 		Optional<List<TaskSchema>> taskSchemaList = getTaskSchemaForEvent(event);
 		if (taskSchemaList.isPresent()) {
 			taskSchemaList.get().forEach(taskSchema -> {
+				log.info("Creating the task for:" + taskSchema);
 				Optional<DefaultTask> taskObj = getTaskBasedOnSchema(taskSchema, event);
 				if (taskObj.isPresent()) {
 					Task task = taskObj.get();
 					taskList.add(task);
+					ArrayList<String> comments = new ArrayList<String>();
+					comments.add(event.getRemarks());
+					task.setComments(comments);
 					Optional<Task> parentTaskObj = getParentTask(taskList, taskSchema);
 					if (parentTaskObj.isPresent()) {
 						Task parentTask = parentTaskObj.get();
@@ -116,11 +122,11 @@ public final class TaskGenerator  {
 						} else {
 							parentTask.getChildTasks().add(task.getId());
 						}
-					}
-					else{
+					} else {
 						log.debug("No child task found for:" + task.getTaskName());
 					}
-					taskAndEventPublisher.publishAutoAssignTask(task);
+				} else {
+					log.warn("Task was not created !");
 				}
 			});
 		}
@@ -174,10 +180,20 @@ public final class TaskGenerator  {
 
 		int dateDiff = calendar.get(GregorianCalendar.DAY_OF_YEAR) - calendar1.get(GregorianCalendar.DAY_OF_YEAR);
 		log.info("Printing the date difference :" + dateDiff);
-		return (Math.abs(taskSchema.getDaysBeforeToCreateTask()) <= dateDiff);
+		return (dateDiff <= Math.abs(taskSchema.getDaysBeforeToCreateTask()));
+	}
+
+	private boolean isTaskAreadyCreated(TaskSchema taskSchema, Event event) {
+		List<Task> taskList = taskRepository.findTaskByEventId(event.getId());
+		return taskList.stream().filter(x -> x.getTaskName().equals(taskSchema.getName())).count() > 0;
 	}
 
 	private Optional<DefaultTask> getTaskBasedOnSchema(TaskSchema taskSchema, Event event) {
+		if (isTaskAreadyCreated(taskSchema, event)) {
+			log.warn("Task " + taskSchema.getName() + " already created for event: " + event.getEventName() + ",Id:"
+					+ event.getId());
+			return Optional.empty();
+		}
 		if (!canCreateTaskNow(taskSchema, event)) {
 			log.info("Too early to create the task now :" + event.getEventName());
 			return Optional.empty();
@@ -188,11 +204,14 @@ public final class TaskGenerator  {
 		task.setEstimatedHours(totalEstimatedHours);
 		task.setEventId(event.getId());
 		task.setPresentState(StatusEnum.scheduled);
-		GregorianCalendar calendar = new GregorianCalendar();
-		calendar.setTimeInMillis(event.getStartTime().getTime());
-		calendar.set(GregorianCalendar.YEAR, getCurrentYear());
-		calendar.add(GregorianCalendar.DAY_OF_MONTH, taskSchema.getDaysBeforeToCreateTask());
-		task.setStartTime(new Timestamp(calendar.getTime().getTime()));
+		/*
+		 * GregorianCalendar calendar = new GregorianCalendar();
+		 * calendar.setTimeInMillis(event.getStartTime().getTime());
+		 * calendar.set(GregorianCalendar.YEAR, getCurrentYear());
+		 * calendar.add(GregorianCalendar.DAY_OF_MONTH,
+		 * taskSchema.getDaysBeforeToCreateTask());
+		 */
+		task.setStartTime(new Timestamp(new Date().getTime()));
 		task.setTaskSequence(taskSchema.getSequence());
 		task.setTaskName(taskSchema.getName());
 		task.setReminders(getTaskReminders(task, taskSchema.getNumberOfDaysToRemind()));
@@ -201,7 +220,7 @@ public final class TaskGenerator  {
 
 	private List<Reminder> getTaskReminders(Task taskObj, int numberOfDaysToRemind) {
 		ArrayList<Reminder> reminders = new ArrayList<Reminder>();
-		EmailTaskReminder emailReminder = new EmailTaskReminder();
+
 		emailReminder.setActive(true);
 		emailReminder.setReminderCnt(INITIAL_REMINDER_COUNTER);
 		GregorianCalendar calendar = new GregorianCalendar();
@@ -218,7 +237,7 @@ public final class TaskGenerator  {
 		} else {
 			reminderTimeStamp = getReminderTime(calendar, calendar1);
 		}
-		emailReminder.setReminderTime(reminderTimeStamp);	
+		emailReminder.setReminderTime(reminderTimeStamp);
 		reminders.add(emailReminder);
 		return reminders;
 	}
@@ -230,13 +249,9 @@ public final class TaskGenerator  {
 
 	}
 
-	private void persistTasks(ArrayList<Task> taskList) {
+	private void persistTasks(List<Task> taskList) {
 		taskRepository.saveAll(taskList);
+		log.info("-- Persisted all tasks --");
 	}
 
-	private void taskCreatedUpdateEvent(Event event) {
-		event.setTaskGenerated(true);
-		churchEventServiceImpl.updateEvent(event);
-		log.info("Updated event.");
-	}	
 }

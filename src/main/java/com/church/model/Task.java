@@ -10,9 +10,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import com.church.util.StatusEnum;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
 @Document
+@ToString
 public abstract class Task {
 
 	@Id
@@ -60,10 +62,20 @@ public abstract class Task {
 	 * that before the event occurs.
 	 */
 	public List<Reminder> reminders;
-	
+
 	/**
 	 * List of child tasks id for any task.
 	 */
 	public Set<String> childTasks;
+	
+	/**
+	 * Used for display purpose.
+	 */
+	public String asignee;
+	
+	/**
+	 * Once the task is completed the finished file URL is set in this property.
+	 */
+	public String finishedProductUrl;
 
 }

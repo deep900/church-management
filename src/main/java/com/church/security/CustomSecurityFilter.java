@@ -82,6 +82,7 @@ public class CustomSecurityFilter extends OncePerRequestFilter {
 			}
 			try {
 				Claims claims = securityUtil.decodeJWT(token);
+				log.info("Sucessfully got claims:" + claims);
 				String roles = claims.get(SecurityConstants.CLAIM_ROLES).toString();
 				String[] roleArr = roles.split(",");
 				List<GrantedAuthority> grantedAuthList = new ArrayList<GrantedAuthority>();
